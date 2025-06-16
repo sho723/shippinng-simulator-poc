@@ -4,7 +4,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
-from src.simulator_engine import ShippingSimulator, Ship, Port, Berth
+from simulator_engine import ShippingSimulator, Ship, Port, Berth
 
 # ページ設定
 st.set_page_config(
@@ -624,4 +624,4 @@ def show_analysis_report_tab():
         col_a, col_b = st.columns(2)
         
         with col_a:
-            csv_report = df.to_csv
+            csv_report = df.to_csv()
