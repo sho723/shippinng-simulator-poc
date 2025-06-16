@@ -4,7 +4,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
-from simulator_engine import ShippingSimulator, Ship, Port, Berth
+from src/simulator_engine import ShippingSimulator, Ship, Port, Berth
 
 # ページ設定
 st.set_page_config(
