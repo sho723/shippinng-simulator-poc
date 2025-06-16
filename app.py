@@ -624,4 +624,4 @@ def show_analysis_report_tab():
         col_a, col_b = st.columns(2)
         
         with col_a:
-            csv_report = df.to_csv(
+            csv_report = df.to_csv
