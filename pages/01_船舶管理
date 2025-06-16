@@ -1,67 +1,56 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
-from src.berth_simulator import Ship
+from src import ShipManager, generate_sample_data, validate_data
 
-st.set_page_config(page_title="船舶管理", page_icon="🚢")
+st.set_page_config(page_title="船舶登録", page_icon="🚢")
 
-st.title("🚢 船舶管理")
+st.title("🚢 船舶登録")
 
-# 新規船舶登録フォーム
-with st.expander("➕ 新規船舶登録", expanded=False):
-    with st.form("ship_form"):
+# セッション状態の初期化
+if 'ship_manager' not in st.session_state:
+    st.session_state.ship_manager = ShipManager()
+
+ship_manager = st.session_state.ship_manager
+
+# サイドバー
+st.sidebar.header("操作メニュー")
+operation = st.sidebar.selectbox(
+    "操作を選択",
+    ["船舶一覧表示", "新規船舶登録", "CSVインポート", "CSVエクスポート", "サンプルデータ読込"]
+)
+
+if operation == "船舶一覧表示":
+    st.header("登録済み船舶一覧")
+    
+    ships = ship_manager.get_all_ships()
+    if ships:
+        df = ship_manager.to_dataframe()
+        st.dataframe(df, use_container_width=True)
+        
+        # 統計情報
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("総船舶数", len(ships))
+        with col2:
+            st.metric("総容量", f"{df['capacity'].sum():,.0f} TEU")
+        with col3:
+            st.metric("平均速度", f"{df['speed'].mean():.1f} knots")
+        with col4:
+            st.metric("平均燃費", f"{df['fuel_consumption'].mean():.1f} L/h")
+    else:
+        st.info("登録された船舶がありません。")
+
+elif operation == "新規船舶登録":
+    st.header("新規船舶登録")
+    
+    with st.form("ship_registration"):
         col1, col2 = st.columns(2)
         
         with col1:
-            ship_id = st.text_input("船舶ID")
-            ship_name = st.text_input("船名")
-            length = st.number_input("船長(m)", min_value=0.0, value=200.0)
-            width = st.number_input("船幅(m)", min_value=0.0, value=30.0)
+            ship_id = st.text_input("船舶ID", placeholder="例: SHIP001")
+            name = st.text_input("船舶名", placeholder="例: Ocean Star")
+            capacity = st.number_input("容量 (TEU)", min_value=1, value=1000)
         
         with col2:
-            draft = st.number_input("喫水(m)", min_value=0.0, value=10.0)
-            cargo_type = st.selectbox("貨物種別", ["container", "bulk", "general", "tanker"])
-            priority = st.slider("優先度", 1, 5, 3)
-            eta = st.datetime_input("到着予定時刻", datetime.now())
-        
-        lat = st.number_input("現在位置(緯度)", value=35.0)
-        lon = st.number_input("現在位置(経度)", value=140.0)
-        
-        if st.form_submit_button("船舶登録"):
-            if ship_id and ship_name:
-                new_ship = Ship(
-                    ship_id, ship_name, length, width, draft, cargo_type,
-                    (lat, lon), eta, priority
-                )
-                
-                if 'ships' not in st.session_state:
-                    st.session_state.ships = []
-                
-                st.session_state.ships.append(new_ship)
-                st.success(f"船舶 {ship_name} を登録しました!")
-            else:
-                st.error("船舶IDと船名は必須です。")
-
-# 登録済み船舶一覧
-if 'ships' in st.session_state and st.session_state.ships:
-    st.subheader("登録済み船舶")
-    for i, ship in enumerate(st.session_state.ships):
-        with st.expander(f"{ship.name} ({ship.id})"):
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                st.write(f"**船長:** {ship.length}m")
-                st.write(f"**船幅:** {ship.width}m")
-                st.write(f"**喫水:** {ship.draft}m")
-            
-            with col2:
-                st.write(f"**貨物種別:** {ship.cargo_type}")
-                st.write(f"**優先度:** {ship.priority}")
-                st.write(f"**ETA:** {ship.eta}")
-            
-            with col3:
-                st.write(f"**現在位置:** {ship.current_position}")
-                
-                if st.button(f"削除", key=f"delete_{i}"):
-                    st.session_state.ships.pop(i)
-                    st.rerun()
+            speed = st.number_input("速度 (knots)", min_value=1.0, value=18.0)
+            fuel_consumption = st.number_input("燃料消費量 (L/hour)", min_value=1.0, value=150
