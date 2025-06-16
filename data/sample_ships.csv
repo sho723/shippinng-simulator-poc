@@ -1,0 +1,9 @@
+ship_id,name,capacity,speed,fuel_consumption,ship_type
+SHIP001,Ocean Star,1000,18,150,Container
+SHIP002,Sea Dragon,1500,20,180,Container
+SHIP003,Wave Rider,800,16,120,Container
+SHIP004,Port Master,2000,22,200,Container
+SHIP005,Cargo King,1200,19,160,Container
+SHIP006,Blue Whale,1800,21,190,Container
+SHIP007,Swift Current,900,17,140,Container
+SHIP008,Maritime Express,1300,20,170,Container
